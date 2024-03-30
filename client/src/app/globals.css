@@ -1,0 +1,65 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Rubik+Scribble&display=swap");
+
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
+@layer base {
+  body {
+    min-height: 100vh;
+    background: url('/mainLayout.png') no-repeat center center / cover;
+    font-family: 'Nunito', sans-serif;
+    color: white;
+  }
+}
+
+@layer utilities {
+  .heading-hg {
+    font-size: 8rem;
+    font-weight: bold;
+    line-height: 100%;
+  }
+  .heading-xl {
+    font-size: 5rem;
+    font-weight: bold;
+    line-height: 120%;
+  }
+  .heading-lg {
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 140%;
+  }
+  .heading-md {
+    font-size: 1.25rem;
+    font-weight: bold;
+    line-height: 140%;
+  }
+  .heading-sm {
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 140%;
+  }
+  .heading-xs {
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 140%;
+  }
+  .text-lg {
+    font-size: 5rem;
+    line-height: 140%;
+  }
+  .text-md {
+    font-size: 1rem;
+    line-height: 140%;
+  }
+  .text-small {
+    font-size: 1rem;
+    line-height: 140%;
+  }
+  .text-xsmall {
+    font-size: 0.75rem;
+    line-height: 140%;
+  }
+}

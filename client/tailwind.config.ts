@@ -14,6 +14,24 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
     },
+    colors: {
+      base: {
+        white: "#FFFFFF",
+        blue: "#8FB2F5",
+        100: "#FAFAFA",
+        200: "#BFBFD4",
+        300: "#ABABC4",
+        400: "#7F7F98",
+        500: "#3B3B54",
+        600: "#22222F",
+        700: "#1C1C27",
+        800: "#16161F",
+        900: "#13131A",
+      },
+    },
+    fontFamily: {
+      "Nunito": ["Nunito", "sans-serif"],
+    }
   },
   plugins: [],
 };
