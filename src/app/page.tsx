@@ -15,14 +15,14 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const timeoutRef = useRef(null);
 
-  const weatherApi = "";
+  const weatherApi = "d0d4226e5271316e765f3deaed1eabcc";
 
   const geoApiOptions = {
     method: "GET",
     url: "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
     headers: {
-      "X-RapidAPI-Key": "",
-      "X-RapidAPI-Host": "",
+      "X-RapidAPI-Key": "5bdecb8602msh8098995f2ea99c8p1a52eajsn69059f229df6",
+      "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
     },
   };
   const option = {
