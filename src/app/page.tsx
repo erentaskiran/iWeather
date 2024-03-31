@@ -4,6 +4,7 @@ import Select from "react-select";
 import axios from "axios";
 import searchStyle from "./(components)/searchConfig";
 import Image from "next/image";
+import { IoLocation } from "react-icons/io5";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,6 +51,7 @@ export default function Home() {
       }
     }, 1000);
   };
+
   const getWeatherData = async (cityName) => {
     try {
       const response = await axios.get(
@@ -79,6 +81,28 @@ export default function Home() {
     getOption();
   };
 
+  const handleLocation = () => {
+      navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude } = position.coords;
+      axios
+        .get(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${weatherApi}&units=metric`
+        )
+        .then((response) => {
+          setSelectedOption({
+            value: response.data.name,
+            label: response.data.name,
+          });
+          setWeather(response.data);
+          setIsSelected(true);
+        })
+        .catch((error) => {
+          console.error(error);
+          setWeather(null);
+        });
+    });
+  }
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -103,17 +127,20 @@ export default function Home() {
           </p>
         </div>
         {isClient && (
-          <Select
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            styles={searchStyle}
-            defaultMenuIsOpen={!isClient}
-            onInputChange={onInputChange}
-            onChange={handleChange}
-            options={options}
-            value={selectedOption}
-            placeholder="Ülke veya Şehir Girin..."
-          />
+          <div className="flex flex-row items-center justify-center">
+            <Select
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              styles={searchStyle}
+              defaultMenuIsOpen={!isClient}
+              onInputChange={onInputChange}
+              onChange={handleChange}
+              options={options}
+              value={selectedOption}
+              placeholder="Ülke veya Şehir Girin..."
+            />
+            <IoLocation  className="min-w-12 min-h-12" color="BFBFD4" onClick={handleLocation}/>
+          </div>
         )}
 
         {weather && isSelected && (
