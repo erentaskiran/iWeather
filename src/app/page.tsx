@@ -5,6 +5,8 @@ import axios from "axios";
 import searchStyle from "./(components)/searchConfig";
 import Image from "next/image";
 import { IoLocation } from "react-icons/io5";
+import { backgroundImageIds, imageIconIds } from "./(components)/imageIds";
+import { get } from "http";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,52 +23,83 @@ export default function Home() {
   const weatherApi = "";
 
   const geoApiOptions = {
-    method: "GET",
-    url: "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
-    headers: {
-      "X-RapidAPI-Key": "",
-      "X-RapidAPI-Host": "",
-    },
+    
+      method: "GET",
+      url: "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
+      params: {
+        
+        minPopulation: "100000",
+        namePrefix: searchQuery,
+        limit: "5",
+      },
+      headers: {
+        "X-RapidAPI-Key": "",
+        "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
+      },
   };
-  const option = {
-    ...geoApiOptions,
-    params: {
-      minPopulation: "100000",
-      namePrefix: searchQuery,
-      limit: "5",
-    },
+
+  const weatherApiOptions = (lat, lon) => {
+    return {
+      url: "https://api.openweathermap.org/data/3.0/onecall",
+      params: {
+        units: "metric",
+        lat: lat,
+        exclude: "daily",
+        lon: lon,
+        appid: weatherApi,
+        dt: Math.floor(Date.now() / 1000),
+      },
+    };
   };
+
+ 
   const getOption = async () => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(async () => {
       try {
-        const response = (await axios(option)).data.data;
+        const response = (await axios(geoApiOptions)).data.data;
         setOptions(
           response.map((city) => ({
             value: city.city,
             label: city.city,
+            latitude: city.latitude,
+            longitude: city.longitude,
           }))
         );
+        if (response.length <= 2 && isSelected) {
+          getWeatherData(
+            response[0].latitude,
+            response[0].longitude,
+            response[0].city
+          );
+        }
       } catch (error) {
         console.error(error);
         setOptions([]);
       }
     }, 1000);
   };
-
-  const getWeatherData = async (cityName) => {
+  const getWeatherData = async (lat, lon, label) => {
     setIsLoading(true);
+
     try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${weatherApi}&units=metric`
-      );
-      setWeather(response.data.weather[0]);
-      setIsLoading(false);
-      setShowDetails(true);
+      axios(weatherApiOptions(lat, lon)).then((response) => {
+        setWeather(
+          response.data.daily.map((data, index) => ({
+            label: label,
+            weather: data.weather[0].main,
+            icon: data.weather[0].icon,
+            cloud: data.clouds,
+            temp: data.temp,
+            windSpeed: data.wind_speed,
+            humidity: data.humidity,
+            uvIndex: data.uvi,
+          }))
+        );
+      });
     } catch (error) {
       console.error(error);
       setWeather(null);
-      setIsLoading(false);
       setShowDetails(false);
     }
   };
@@ -75,8 +108,8 @@ export default function Home() {
     setSelectedOption(option);
     setSearchQuery(option ? option.value : "");
     if (option) {
-      getWeatherData(option.value);
       setIsSelected(true);
+      getWeatherData(option.latitude, option.longitude, option.value);
     } else {
       setIsSelected(false);
     }
@@ -88,45 +121,61 @@ export default function Home() {
     getOption();
   };
 
-  const handleLocation = () => {
+  const handleLocation = async () => {
     setIsLoading(true);
     navigator.geolocation.getCurrentPosition((position) => {
+      //latitute and longitute Param 'location[40.76604009896032,29.957621829333917]' has invalid value. Must be in ISO 6709 format (±DD.DDDD±DDD.DDDD)
+      let label;
       const { latitude, longitude } = position.coords;
-      axios
-        .get(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${weatherApi}&units=metric`
-        )
+      const geoApiOption = {
+        ...geoApiOptions,
+        params: {location: `${latitude > 0 ? '+' : ''}${latitude.toFixed(4)}${longitude > 0 ? '+' : ''}${longitude.toFixed(4)}`},
+      };
+      axios(geoApiOption).then((response) => {
+        label = response.data.data[0].city;
+      });
+      axios(weatherApiOptions(latitude, longitude))
         .then((response) => {
-          setSelectedOption({
-            value: response.data.name,
-            label: response.data.name,
-          });
-          setWeather(response.data.weather[0]);
-          setSearchQuery(response.data.name);
+          setWeather(
+            response.data.daily.map((data) => ({
+              label: label,
+              weather: data.weather[0].main,
+              icon: data.weather[0].icon,
+              cloud: data.clouds,
+              temp: data.temp,
+              windSpeed: data.wind_speed,
+              humidity: data.humidity,
+              uvIndex: data.uvi,
+            }))
+          );
           setIsSelected(true);
-          setIsLoading(false);
-          setShowDetails(true);
         })
         .catch((error) => {
           console.error(error);
           setWeather(null);
-          setIsLoading(false);
           setShowDetails(false);
         });
     });
   };
-  
+
   const handleBackButtonClick = () => {
     setShowDetails(false);
     setSelectedOption(null);
     setIsSelected(false);
     setSearchQuery("");
-  }
+  };
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
-
+    if (options.length === 0 || isSelected) {
+      getOption();
+      setSearchQuery("");
+    }
+    if (weather) {
+      setShowDetails(true);
+      setIsLoading(false);
+    }
+  }, [weather]);
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
       {!showDetails && (
@@ -174,11 +223,25 @@ export default function Home() {
         )}
 
         {showDetails && (
-          <div>
-            <div>
+          <div className="flex h-72 w-full flex-col justify-between rounded-lg bg-cover ">
             <button onClick={handleBackButtonClick}>Back</button>
-            <h2>{weather.main}</h2>
-            <h3>{weather.description}</h3>
+            <div
+              className={" min-w-64 min-h-min "}
+              style={{
+                backgroundImage: `url('${
+                  backgroundImageIds[weather[0].icon]
+                }')`,
+              }}
+            >
+              <div>
+                <h1>{weather[0].label}</h1>
+              </div>
+              <Image
+                src={imageIconIds[weather[0].icon]}
+                width={48}
+                height={48}
+                alt="123"
+              />
             </div>
           </div>
         )}
