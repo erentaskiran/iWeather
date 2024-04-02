@@ -23,19 +23,17 @@ export default function Home() {
   const weatherApi = "";
 
   const geoApiOptions = {
-    
-      method: "GET",
-      url: "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
-      params: {
-        
-        minPopulation: "100000",
-        namePrefix: searchQuery,
-        limit: "5",
-      },
-      headers: {
-        "X-RapidAPI-Key": "",
-        "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
-      },
+    method: "GET",
+    url: "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
+    params: {
+      minPopulation: "100000",
+      namePrefix: searchQuery,
+      limit: "5",
+    },
+    headers: {
+      "X-RapidAPI-Key": "",
+      "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
+    },
   };
 
   const weatherApiOptions = (lat, lon) => {
@@ -52,7 +50,6 @@ export default function Home() {
     };
   };
 
- 
   const getOption = async () => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(async () => {
@@ -124,12 +121,15 @@ export default function Home() {
   const handleLocation = async () => {
     setIsLoading(true);
     navigator.geolocation.getCurrentPosition((position) => {
-      //latitute and longitute Param 'location[40.76604009896032,29.957621829333917]' has invalid value. Must be in ISO 6709 format (±DD.DDDD±DDD.DDDD)
       let label;
       const { latitude, longitude } = position.coords;
       const geoApiOption = {
         ...geoApiOptions,
-        params: {location: `${latitude > 0 ? '+' : ''}${latitude.toFixed(4)}${longitude > 0 ? '+' : ''}${longitude.toFixed(4)}`},
+        params: {
+          location: `${latitude > 0 ? "+" : ""}${latitude.toFixed(4)}${
+            longitude > 0 ? "+" : ""
+          }${longitude.toFixed(4)}`,
+        },
       };
       axios(geoApiOption).then((response) => {
         label = response.data.data[0].city;
