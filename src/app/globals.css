@@ -62,4 +62,9 @@
     font-size: 0.75rem;
     line-height: 140%;
   }
+  .custom-hr {
+    color: #3B3B54; 
+    height: 0.5px; 
+    width: 91%;
+  }
 }

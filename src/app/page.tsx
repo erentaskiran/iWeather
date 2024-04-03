@@ -5,8 +5,11 @@ import axios from "axios";
 import searchStyle from "./(components)/searchConfig";
 import Image from "next/image";
 import { IoLocation, IoArrowBackOutline } from "react-icons/io5";
-import { backgroundImageIds, imageIconIds } from "./(components)/imageIds";
 import Spinner from "./(components)/spinner";
+import WeatherDetail from "./(components)/weatherDetail";
+import WeatherDetailHeader from "./(components)/weatherDetailsHeader";
+import WeatherDetailFooter from "./(components)/weatherDetailFooter";
+
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,12 +18,15 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+
+  const weatherApi:string=process.env.OPEN_WEATHER_API;
+  const geoApi:string=process.env.RAPID_API_KEY;
+  const geoHost:string=process.env.RAPID_API_HOST;
+
   const timeoutRef = useRef(null);
-  const LoadingIndicator = (props) => <Spinner />;
-  const weatherApi = "";
+  const LoadingIndicator = () => <Spinner />;
 
   const geoApiOptions = {
     method: "GET",
@@ -31,8 +37,8 @@ export default function Home() {
       limit: "5",
     },
     headers: {
-      "X-RapidAPI-Key": "",
-      "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
+      "X-RapidAPI-Key": geoApi,
+      "X-RapidAPI-Host": geoHost ,
     },
   };
 
@@ -93,7 +99,9 @@ export default function Home() {
             windSpeed: data.wind_speed,
             humidity: data.humidity,
             uvIndex: data.uvi,
+            dt: data.dt,
           }))
+          
         );
       });
     } catch (error) {
@@ -123,7 +131,6 @@ export default function Home() {
   const handleLocation = async () => {
     setIsLoading(true);
     navigator.geolocation.getCurrentPosition((position) => {
-      let label;
       const { latitude, longitude } = position.coords;
       const geoApiOption = {
         ...geoApiOptions,
@@ -133,34 +140,16 @@ export default function Home() {
           }${longitude.toFixed(4)}`,
         },
       };
-
-      axios(geoApiOption).then((response) => {
-        label = response.data.data[0].city;
-      });
-
-      axios(weatherApiOptions(latitude, longitude))
-        .then((response) => {
-          setWeather(
-            response.data.daily.map((data) => ({
-              label: label,
-              weather: data.weather[0].main,
-              icon: data.weather[0].icon,
-              cloud: data.clouds,
-              temp: data.temp,
-              maxTemp: data.temp.max,
-              minTemp: data.temp.min,
-              windSpeed: data.wind_speed,
-              humidity: data.humidity,
-              uvIndex: data.uvi,
-            }))
-          );
-          setIsSelected(true);
-        })
-        .catch((error) => {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(async () => {
+        try {
+          const response = await axios(geoApiOption);
+          const label = response.data.data[0].city;
+          getWeatherData(latitude, longitude, label);
+        } catch (error) {
           console.error(error);
-          setWeather(null);
-          setShowDetails(false);
-        });
+        }
+      }, 1000);
     });
   };
 
@@ -210,8 +199,6 @@ export default function Home() {
           <div className="flex flex-row items-center justify-center ">
             <Select
               className="w-72"
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
               styles={searchStyle}
               defaultMenuIsOpen={!isClient}
               onInputChange={onInputChange}
@@ -236,7 +223,7 @@ export default function Home() {
         )}
 
         {showDetails && (
-          <div className="flex h-72 w-full flex-col justify-between rounded-lg bg-cover ">
+          <div className="flex min-h-72 w-full flex-col justify-between rounded-lg bg-cover">
             <IoArrowBackOutline
               color="white"
               width={96}
@@ -244,47 +231,10 @@ export default function Home() {
               className="min-h-8 min-w-12"
               onClick={handleBackButtonClick}
             />
-            <div
-              className={"min-w-72 min-h-min rounded-lg bg-cover"}
-              style={{
-                backgroundImage: `url('${
-                  backgroundImageIds[weather[0].icon]
-                }')`,
-              }}
-            >
-              <div className="m-5">
-                <h1 className="heading-md">{weather[0].label}</h1>
-                <p className="text-xs">
-                  {new Date().toLocaleDateString("en-US", {
-                    weekday: "short",
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-              <div className="flex flex-row space-x-12">
-                <div className="m-5 flex flex-col items-start">
-                  <h1 className="heading-lg mt-24">
-                    {Math.round(weather[0].temp.day)}°C
-                  </h1>
-                  <h2 className="heading-xs">
-                    {Math.round(weather[0].maxTemp)}°C/
-                    {Math.round(weather[0].minTemp)}°C
-                  </h2>
-                  <p className="text-sm">{weather[0].weather}</p>
-                </div>
-                <div className="m-5 flex flex-col mt-24">
-                  <Image
-                    src={imageIconIds[weather[0].icon]}
-                    className="w-24 h-24"
-                    width={96}
-                    height={96}
-                    alt="123"
-                  />
-                </div>
-              </div>
-            </div>
+            <WeatherDetailHeader />
+            <WeatherDetail weather={weather} />
+            <WeatherDetailFooter weather={weather} />
+            
           </div>
         )}
         <div></div>
