@@ -4,9 +4,9 @@ import Select from "react-select";
 import axios from "axios";
 import searchStyle from "./(components)/searchConfig";
 import Image from "next/image";
-import { IoLocation } from "react-icons/io5";
+import { IoLocation, IoArrowBackOutline } from "react-icons/io5";
 import { backgroundImageIds, imageIconIds } from "./(components)/imageIds";
-import { get } from "http";
+import Spinner from "./(components)/spinner";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,7 +19,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const timeoutRef = useRef(null);
-
+  const LoadingIndicator = (props) => <Spinner />;
   const weatherApi = "";
 
   const geoApiOptions = {
@@ -76,9 +76,9 @@ export default function Home() {
       }
     }, 1000);
   };
+
   const getWeatherData = async (lat, lon, label) => {
     setIsLoading(true);
-
     try {
       axios(weatherApiOptions(lat, lon)).then((response) => {
         setWeather(
@@ -87,6 +87,8 @@ export default function Home() {
             weather: data.weather[0].main,
             icon: data.weather[0].icon,
             cloud: data.clouds,
+            maxTemp: data.temp.max,
+            minTemp: data.temp.min,
             temp: data.temp,
             windSpeed: data.wind_speed,
             humidity: data.humidity,
@@ -131,9 +133,11 @@ export default function Home() {
           }${longitude.toFixed(4)}`,
         },
       };
+
       axios(geoApiOption).then((response) => {
         label = response.data.data[0].city;
       });
+
       axios(weatherApiOptions(latitude, longitude))
         .then((response) => {
           setWeather(
@@ -143,6 +147,8 @@ export default function Home() {
               icon: data.weather[0].icon,
               cloud: data.clouds,
               temp: data.temp,
+              maxTemp: data.temp.max,
+              minTemp: data.temp.min,
               windSpeed: data.wind_speed,
               humidity: data.humidity,
               uvIndex: data.uvi,
@@ -176,6 +182,7 @@ export default function Home() {
       setIsLoading(false);
     }
   }, [weather]);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
       {!showDetails && (
@@ -183,8 +190,8 @@ export default function Home() {
           className=""
           src="/logo.png"
           alt="logo"
-          width={300}
-          height={75}
+          width={96}
+          height={96}
           priority={true}
         />
       )}
@@ -200,8 +207,9 @@ export default function Home() {
           </div>
         )}
         {isClient && !showDetails && (
-          <div className="flex flex-row items-center justify-center">
+          <div className="flex flex-row items-center justify-center ">
             <Select
+              className="w-72"
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               styles={searchStyle}
@@ -212,6 +220,11 @@ export default function Home() {
               value={selectedOption}
               isLoading={isLoading}
               isDisabled={isLoading}
+              components={{
+                DropdownIndicator: () => null,
+                IndicatorSeparator: () => null,
+                LoadingIndicator,
+              }}
               placeholder="Ülke veya Şehir Girin..."
             />
             <IoLocation
@@ -224,24 +237,47 @@ export default function Home() {
 
         {showDetails && (
           <div className="flex h-72 w-full flex-col justify-between rounded-lg bg-cover ">
-            <button onClick={handleBackButtonClick}>Back</button>
+            <IoArrowBackOutline className="w-24 h-24" onClick={handleBackButtonClick}/>
             <div
-              className={" min-w-64 min-h-min "}
+              className={"min-w-72 min-h-min rounded-lg bg-cover"}
               style={{
                 backgroundImage: `url('${
                   backgroundImageIds[weather[0].icon]
                 }')`,
               }}
             >
-              <div>
-                <h1>{weather[0].label}</h1>
+              <div className="m-5">
+                <h1 className="heading-md">{weather[0].label}</h1>
+                <p className="text-xs">
+                  {new Date().toLocaleDateString("en-US", {
+                    weekday: "short",
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </p>
               </div>
-              <Image
-                src={imageIconIds[weather[0].icon]}
-                width={48}
-                height={48}
-                alt="123"
-              />
+              <div className="flex flex-row space-x-12">
+                <div className="m-5 flex flex-col items-start">
+                  <h1 className="heading-lg mt-24">
+                    {Math.round(weather[0].temp.day)}°C
+                  </h1>
+                  <h2 className="heading-xs">
+                    {Math.round(weather[0].maxTemp)}°C/
+                    {Math.round(weather[0].minTemp)}°C
+                  </h2>
+                  <p className="text-sm">{weather[0].weather}</p>
+                </div>
+                <div className="m-5 flex flex-col mt-24">
+                  <Image
+                    src={imageIconIds[weather[0].icon]}
+                    className="w-24 h-24"
+                    width={96}
+                    height={96}
+                    alt="123"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
