@@ -28,7 +28,7 @@ export default function Home() {
       try {
         const response = (
           await axios.get(
-            "http://localhost:3000/api/geoApi?searchQuery=" + searchQuery
+            "/api/geoApi?searchQuery=" + searchQuery
           )
         ).data.data;
         setOptions(
@@ -57,7 +57,7 @@ export default function Home() {
     setIsLoading(true);
     try {
       axios
-        .get("http://localhost:3000/api/weatherApi?lat=" + lat + "&lon=" + lon)
+        .get("/api/weatherApi?lat=" + lat + "&lon=" + lon)
         .then((response) => {
           
           setWeather(response.data.data.daily.map((data) => ({
@@ -108,7 +108,7 @@ export default function Home() {
       timeoutRef.current = setTimeout(async () => {
         try {
           axios.get(
-              "http://localhost:3000/api/geoApiCoordinates?lat=" +
+              "/api/geoApiCoordinates?lat=" +
                 latitude +
                 "&lon=" +
                 longitude
