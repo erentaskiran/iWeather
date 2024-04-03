@@ -10,7 +10,6 @@ import WeatherDetail from "./(components)/weatherDetail";
 import WeatherDetailHeader from "./(components)/weatherDetailsHeader";
 import WeatherDetailFooter from "./(components)/weatherDetailFooter";
 
-
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [options, setOptions] = useState([]);
@@ -20,49 +19,20 @@ export default function Home() {
   const [isSelected, setIsSelected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-
-  const weatherApi:string=process.env.OPEN_WEATHER_API;
-  const geoApi:string=process.env.RAPID_API_KEY;
-  const geoHost:string=process.env.RAPID_API_HOST;
-
   const timeoutRef = useRef(null);
   const LoadingIndicator = () => <Spinner />;
-
-  const geoApiOptions = {
-    method: "GET",
-    url: "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
-    params: {
-      minPopulation: "100000",
-      namePrefix: searchQuery,
-      limit: "5",
-    },
-    headers: {
-      "X-RapidAPI-Key": geoApi,
-      "X-RapidAPI-Host": geoHost ,
-    },
-  };
-
-  const weatherApiOptions = (lat, lon) => {
-    return {
-      url: "https://api.openweathermap.org/data/3.0/onecall",
-      params: {
-        units: "metric",
-        lat: lat,
-        exclude: "daily",
-        lon: lon,
-        appid: weatherApi,
-        dt: Math.floor(Date.now() / 1000),
-      },
-    };
-  };
 
   const getOption = async () => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(async () => {
       try {
-        const response = (await axios(geoApiOptions)).data.data;
+        const response = (
+          await axios.get(
+            "http://localhost:3000/api/geoApi?searchQuery=" + searchQuery
+          )
+        ).data.data;
         setOptions(
-          response.map((city) => ({
+          response.data.map((city) => ({
             value: city.city,
             label: city.city,
             latitude: city.latitude,
@@ -71,9 +41,9 @@ export default function Home() {
         );
         if (response.length <= 2 && isSelected) {
           getWeatherData(
-            response[0].latitude,
-            response[0].longitude,
-            response[0].city
+            response.data[0].latitude,
+            response.data[0].longitude,
+            response.data[0].city
           );
         }
       } catch (error) {
@@ -86,9 +56,11 @@ export default function Home() {
   const getWeatherData = async (lat, lon, label) => {
     setIsLoading(true);
     try {
-      axios(weatherApiOptions(lat, lon)).then((response) => {
-        setWeather(
-          response.data.daily.map((data) => ({
+      axios
+        .get("http://localhost:3000/api/weatherApi?lat=" + lat + "&lon=" + lon)
+        .then((response) => {
+          
+          setWeather(response.data.data.daily.map((data) => ({
             label: label,
             weather: data.weather[0].main,
             icon: data.weather[0].icon,
@@ -100,10 +72,10 @@ export default function Home() {
             humidity: data.humidity,
             uvIndex: data.uvi,
             dt: data.dt,
-          }))
+            })));
           
-        );
-      });
+          
+        });
     } catch (error) {
       console.error(error);
       setWeather(null);
@@ -132,22 +104,23 @@ export default function Home() {
     setIsLoading(true);
     navigator.geolocation.getCurrentPosition((position) => {
       const { latitude, longitude } = position.coords;
-      const geoApiOption = {
-        ...geoApiOptions,
-        params: {
-          location: `${latitude > 0 ? "+" : ""}${latitude.toFixed(4)}${
-            longitude > 0 ? "+" : ""
-          }${longitude.toFixed(4)}`,
-        },
-      };
       clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(async () => {
         try {
-          const response = await axios(geoApiOption);
-          const label = response.data.data[0].city;
-          getWeatherData(latitude, longitude, label);
+          axios.get(
+              "http://localhost:3000/api/geoApiCoordinates?lat=" +
+                latitude +
+                "&lon=" +
+                longitude
+            )
+            .then((response) => {
+              const label = response.data.data[0].city;
+              getWeatherData(latitude, longitude, label);
+            });
         } catch (error) {
           console.error(error);
+          setWeather(null);
+          setShowDetails(false);
         }
       }, 1000);
     });
@@ -231,10 +204,9 @@ export default function Home() {
               className="min-h-8 min-w-12"
               onClick={handleBackButtonClick}
             />
-            <WeatherDetailHeader />
+            <WeatherDetailHeader weather={weather}/>
             <WeatherDetail weather={weather} />
             <WeatherDetailFooter weather={weather} />
-            
           </div>
         )}
         <div></div>

@@ -3,6 +3,7 @@ import React from "react";
 
 export default function WeatherDetail(...prop) {
   const weather = prop[0].weather;
+  if (!weather) return null;
   return (
     <div className="min-w-72 h-fit bg-base-700 mt-2 rounded-lg ">
       <div className="m-5 flex justify-between">
