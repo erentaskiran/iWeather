@@ -20,7 +20,7 @@ export default function WeatherDetail(...prop) {
       </div>
 
       <div className="flex justify-center">
-        <hr className="custom-hr"  />
+        <hr className="custom-hr" style={{color:"#3B3B54"}} />
       </div>
 
       <div className="m-5 flex justify-between">
@@ -36,7 +36,7 @@ export default function WeatherDetail(...prop) {
         <span className="text-md"> {weather[0].cloud / 100}%</span>
       </div>
       <div className="flex justify-center">
-        <hr className="custom-hr" />
+        <hr className="custom-hr" style={{color:"#3B3B54"}}/>
       </div>
 
       <div className="m-5 flex justify-between">
@@ -52,7 +52,7 @@ export default function WeatherDetail(...prop) {
         <span className="text-md"> {weather[0].windSpeed} km/h</span>
       </div>
       <div className="flex justify-center">
-        <hr className="custom-hr" />
+        <hr className="custom-hr" style={{color:"#3B3B54"}}/>
       </div>
 
       <div className="m-5 flex justify-between">
@@ -68,7 +68,7 @@ export default function WeatherDetail(...prop) {
         <span className="text-md"> {weather[0].humidity}%</span>
       </div>
       <div className="flex justify-center">
-        <hr className="custom-hr" />
+        <hr className="custom-hr" style={{color:"#3B3B54"}}/>
       </div>
 
       <div className="m-5 flex justify-between">
