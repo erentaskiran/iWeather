@@ -82,7 +82,7 @@ export default function Home() {
     try {
       axios(weatherApiOptions(lat, lon)).then((response) => {
         setWeather(
-          response.data.daily.map((data, index) => ({
+          response.data.daily.map((data) => ({
             label: label,
             weather: data.weather[0].main,
             icon: data.weather[0].icon,
@@ -190,8 +190,8 @@ export default function Home() {
           className=""
           src="/logo.png"
           alt="logo"
-          width={96}
-          height={96}
+          width={300}
+          height={125}
           priority={true}
         />
       )}
@@ -237,7 +237,13 @@ export default function Home() {
 
         {showDetails && (
           <div className="flex h-72 w-full flex-col justify-between rounded-lg bg-cover ">
-            <IoArrowBackOutline className="w-24 h-24" onClick={handleBackButtonClick}/>
+            <IoArrowBackOutline
+              color="white"
+              width={96}
+              height={96}
+              className="min-h-8 min-w-12"
+              onClick={handleBackButtonClick}
+            />
             <div
               className={"min-w-72 min-h-min rounded-lg bg-cover"}
               style={{
