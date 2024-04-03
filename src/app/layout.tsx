@@ -4,8 +4,8 @@ import "@radix-ui/themes/styles.css";
 
 
 export const metadata: Metadata = {
-  title: "I Weather",
-  description: "I Weather",
+  title: "iWeather",
+  description: "iWeather",
 };
 
 export default function RootLayout({
