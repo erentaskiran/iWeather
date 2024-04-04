@@ -28,25 +28,16 @@ export default function Home() {
     timeoutRef.current = setTimeout(async () => {
       try {
         const response = (
-          await axios.get(
-            "/api/geoApi?searchQuery=" + searchQuery
-          )
+          await axios.get("/api/geoApi?searchQuery=" + searchQuery)
         ).data.data;
         setOptions(
           response.data.map((city) => ({
             value: city.city,
-            label: city.city,
+            label: city.city + " " + city.countryCode,
             latitude: city.latitude,
             longitude: city.longitude,
           }))
         );
-        if (response.length <= 2 && isSelected) {
-          getWeatherData(
-            response.data[0].latitude,
-            response.data[0].longitude,
-            response.data[0].city
-          );
-        }
       } catch (error) {
         console.error(error);
         setOptions([]);
@@ -70,21 +61,21 @@ export default function Home() {
             uvIndex: response.data.data.current.uvi,
             cloud: response.data.data.current.clouds,
           });
-          setWeather(response.data.data.daily.map((data) => ({
-            label: label,
-            weather: data.weather[0].main,
-            icon: data.weather[0].icon,
-            cloud: data.clouds,
-            maxTemp: data.temp.max,
-            minTemp: data.temp.min,
-            temp: data.temp,
-            windSpeed: data.wind_speed,
-            humidity: data.humidity,
-            uvIndex: data.uvi,
-            dt: data.dt,
-            })));
-          
-          
+          setWeather(
+            response.data.data.daily.map((data) => ({
+              label: label,
+              weather: data.weather[0].main,
+              icon: data.weather[0].icon,
+              cloud: data.clouds,
+              maxTemp: data.temp.max,
+              minTemp: data.temp.min,
+              temp: data.temp,
+              windSpeed: data.wind_speed,
+              humidity: data.humidity,
+              uvIndex: data.uvi,
+              dt: data.dt,
+            }))
+          );
         });
     } catch (error) {
       console.error(error);
@@ -95,10 +86,10 @@ export default function Home() {
 
   const handleChange = (option) => {
     setSelectedOption(option);
-    setSearchQuery(option ? option.value : "");
+    setSearchQuery(option ? option.label : "");
     if (option) {
       setIsSelected(true);
-      getWeatherData(option.latitude, option.longitude, option.value);
+      getWeatherData(option.latitude, option.longitude, option.label);
     } else {
       setIsSelected(false);
     }
@@ -117,20 +108,19 @@ export default function Home() {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(async () => {
         try {
-          axios.get(
-              "/api/geoApiCoordinates?lat=" +
-                latitude +
-                "&lon=" +
-                longitude
-            )
+          axios
+            .get("/api/geoApiCoordinates?lat=" + latitude + "&lon=" + longitude)
             .then((response) => {
-              if(response.data.success == false){
-                alert("Api  rate limit exceeded. Please try again later.")
+              if (response.data.success == false) {
+                alert("Api  rate limit exceeded. Please try again later.");
                 setWeather(null);
                 setShowDetails(false);
                 return;
               }
-              const label = response.data.data[0].city + " "+ response.data.data[0].countryCode;
+              const label =
+                response.data.data[0].city +
+                " " +
+                response.data.data[0].countryCode;
               getWeatherData(latitude, longitude, label);
             });
         } catch (error) {
@@ -220,8 +210,11 @@ export default function Home() {
               className="min-h-8 min-w-12"
               onClick={handleBackButtonClick}
             />
-            <WeatherDetailHeader  weather={weather} weatherCurrent={weatherCurrent} />
-            <WeatherDetail weather={weather} weatherCurrent={weatherCurrent}/>
+            <WeatherDetailHeader
+              weather={weather}
+              weatherCurrent={weatherCurrent}
+            />
+            <WeatherDetail weather={weather} weatherCurrent={weatherCurrent} />
             <WeatherDetailFooter weather={weather} />
           </div>
         )}
