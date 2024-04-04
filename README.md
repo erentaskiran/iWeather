@@ -27,22 +27,25 @@ This is a weather application built with Next.js, React, and TypeScript. It allo
 To get the project up and running, follow these steps:
 
 1. Clone the repository:
-
 ```bash
 git clone https://github.com/yourusername/weather-app.git
 cd weather-app
+```
 
 2. Install the dependencies:
 ```bash
 npm install
+```
 
 3. Create a .env.local file in the root directory and fill it with your environment variables:
 ```bash
 cp .env.local.example .env.local
+```
 
 4. Run the development server:
 ```bash
 npm run dev
+````
 
 5. Open http://localhost:3000 with your browser to see the result.
 
