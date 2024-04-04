@@ -19,6 +19,7 @@ export default function Home() {
   const [isSelected, setIsSelected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [weatherCurrent, setWeatherCurrent] = useState(null);
   const timeoutRef = useRef(null);
   const LoadingIndicator = () => <Spinner />;
 
@@ -59,7 +60,16 @@ export default function Home() {
       axios
         .get("/api/weatherApi?lat=" + lat + "&lon=" + lon)
         .then((response) => {
-          
+          setWeatherCurrent({
+            label: label,
+            weather: response.data.data.current.weather[0].main,
+            icon: response.data.data.current.weather[0].icon,
+            temp: response.data.data.current.temp,
+            windSpeed: response.data.data.current.wind_speed,
+            humidity: response.data.data.current.humidity,
+            uvIndex: response.data.data.current.uvi,
+            cloud: response.data.data.current.clouds,
+          });
           setWeather(response.data.data.daily.map((data) => ({
             label: label,
             weather: data.weather[0].main,
@@ -114,7 +124,13 @@ export default function Home() {
                 longitude
             )
             .then((response) => {
-              const label = response.data.data[0].city;
+              if(response.data.success == false){
+                alert("Api  rate limit exceeded. Please try again later.")
+                setWeather(null);
+                setShowDetails(false);
+                return;
+              }
+              const label = response.data.data[0].city + " "+ response.data.data[0].countryCode;
               getWeatherData(latitude, longitude, label);
             });
         } catch (error) {
@@ -204,8 +220,8 @@ export default function Home() {
               className="min-h-8 min-w-12"
               onClick={handleBackButtonClick}
             />
-            <WeatherDetailHeader weather={weather}/>
-            <WeatherDetail weather={weather} />
+            <WeatherDetailHeader  weather={weather} weatherCurrent={weatherCurrent} />
+            <WeatherDetail weather={weather} weatherCurrent={weatherCurrent}/>
             <WeatherDetailFooter weather={weather} />
           </div>
         )}

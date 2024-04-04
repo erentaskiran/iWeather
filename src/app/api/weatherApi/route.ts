@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
       },
     };
   };
-  const response = await axios(weatherApiOptions(lat, lon));
+  const response = await (await axios(weatherApiOptions(lat, lon)));
+  if(response.data.message){
+    return NextResponse.json({ success: false, error: response.data.message });
+  }
   if (response.status !== 200) {
     return NextResponse.json({ success: false, error: "Bir hata oluştu." });
   }

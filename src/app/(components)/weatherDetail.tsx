@@ -3,6 +3,7 @@ import React from "react";
 
 export default function WeatherDetail(...prop) {
   const weather = prop[0].weather;
+  const weatherCurrent = prop[0].weatherCurrent;
   if (!weather) return null;
   return (
     <div className="min-w-72 h-fit bg-base-700 mt-2 rounded-lg ">
@@ -16,11 +17,11 @@ export default function WeatherDetail(...prop) {
           />
           <p>Thermal sensation</p>
         </div>
-        <span className="text-md">{Math.floor(weather[0].temp.day)}°C</span>
+        <span className="text-md">{Math.floor(weatherCurrent.temp)}°C</span>
       </div>
 
       <div className="flex justify-center">
-        <hr className="custom-hr" style={{color:"#3B3B54"}} />
+        <hr className="custom-hr"/>
       </div>
 
       <div className="m-5 flex justify-between">
@@ -33,10 +34,10 @@ export default function WeatherDetail(...prop) {
           />
           <p>Probability of rain</p>
         </div>
-        <span className="text-md"> {weather[0].cloud / 100}%</span>
+        <span className="text-md"> {weatherCurrent.cloud / 100}%</span>
       </div>
       <div className="flex justify-center">
-        <hr className="custom-hr" style={{color:"#3B3B54"}}/>
+        <hr className="custom-hr" />
       </div>
 
       <div className="m-5 flex justify-between">
@@ -49,10 +50,10 @@ export default function WeatherDetail(...prop) {
           />
           <p>Wind speed</p>
         </div>
-        <span className="text-md"> {weather[0].windSpeed} km/h</span>
+        <span className="text-md"> {weatherCurrent.windSpeed} km/h</span>
       </div>
       <div className="flex justify-center">
-        <hr className="custom-hr" style={{color:"#3B3B54"}}/>
+        <hr className="custom-hr"/>
       </div>
 
       <div className="m-5 flex justify-between">
@@ -68,7 +69,7 @@ export default function WeatherDetail(...prop) {
         <span className="text-md"> {weather[0].humidity}%</span>
       </div>
       <div className="flex justify-center">
-        <hr className="custom-hr" style={{color:"#3B3B54"}}/>
+        <hr className="custom-hr"/>
       </div>
 
       <div className="m-5 flex justify-between">
@@ -81,7 +82,7 @@ export default function WeatherDetail(...prop) {
           />
           <p>UV Index</p>
         </div>
-        <span className="text-md"> {weather[0].uvIndex}</span>
+        <span className="text-md"> {weatherCurrent.uvIndex}</span>
       </div>
     </div>
   );

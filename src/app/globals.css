@@ -63,8 +63,7 @@
     line-height: 140%;
   }
   .custom-hr {
-    color: #3B3B54; 
-    height: 0.5px; 
+    border-top: 0.5px solid #3B3B54;
     width: 91%;
   }
 }
