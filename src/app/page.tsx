@@ -201,7 +201,7 @@ export default function Home() {
                 IndicatorSeparator: () => null,
                 LoadingIndicator,
               }}
-              placeholder="Ülke veya Şehir Girin..."
+              placeholder="Search location"
             />
             <IoLocation
               className="min-w-12 min-h-12"
