@@ -196,7 +196,7 @@ export default function Home() {
         )}
 
         {showDetails && (
-          <div className="flex min-h-72 w-full flex-col justify-between rounded-lg bg-cover">
+          <div className="flex min-h-72 w-full flex-col justify-between rounded-lg bg-cover mt-32">
             <IoArrowBackOutline
               color="white"
               width={96}
@@ -209,7 +209,6 @@ export default function Home() {
             <WeatherDetailFooter weather={weather} />
           </div>
         )}
-        <div></div>
       </div>
     </div>
   );
