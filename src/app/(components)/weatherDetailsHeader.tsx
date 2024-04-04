@@ -42,7 +42,7 @@ export default function WeatherDetailsHeader(props) {
                       className="w-24 h-24"
                       width={96}
                       height={96}
-                      alt="123"
+                      alt={weatherCurrent.icon}
                     />
                   </div>
                 </div>
