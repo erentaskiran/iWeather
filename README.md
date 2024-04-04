@@ -28,8 +28,8 @@ To get the project up and running, follow these steps:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/weather-app.git
-cd weather-app
+git clone https://github.com/erentaskiran/iWeather.git
+cd iWeather
 ```
 
 2. Install the dependencies:
