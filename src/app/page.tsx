@@ -10,17 +10,38 @@ import WeatherDetail from "./(components)/weatherDetail";
 import WeatherDetailHeader from "./(components)/weatherDetailsHeader";
 import WeatherDetailFooter from "./(components)/weatherDetailFooter";
 
+interface Option {
+  value: string;
+  label: string;
+  latitude: number;
+  longitude: number;
+}
+
+interface Weather {
+  label: string;
+  weather: string;
+  icon: string;
+  temp: number;
+  windSpeed: number;
+  humidity: number;
+  uvIndex: number;
+  cloud: number;
+  maxTemp?: number;
+  minTemp?: number;
+  dt?: number;
+}
+
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [options, setOptions] = useState([]);
-  const [weather, setWeather] = useState(null);
-  const [isClient, setIsClient] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isSelected, setIsSelected] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
-  const [weatherCurrent, setWeatherCurrent] = useState(null);
-  const timeoutRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [options, setOptions] = useState<Option[]>([]);
+  const [weather, setWeather] = useState<Weather[] | null>(null);
+  const [isClient, setIsClient] = useState<boolean>(false);
+  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
+  const [isSelected, setIsSelected] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [weatherCurrent, setWeatherCurrent] = useState<Weather | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const LoadingIndicator = () => <Spinner />;
 
   const getOption = async () => {
