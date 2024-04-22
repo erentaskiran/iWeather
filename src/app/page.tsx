@@ -124,33 +124,43 @@ export default function Home() {
 
   const handleLocation = async () => {
     setIsLoading(true);
-    navigator.geolocation.getCurrentPosition((position) => {
-      const { latitude, longitude } = position.coords;
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(async () => {
-        try {
-          axios
-            .get("/api/geoApiCoordinates?lat=" + latitude + "&lon=" + longitude)
-            .then((response) => {
-              if (response.data.success == false) {
-                alert("Api  rate limit exceeded. Please try again later.");
-                setWeather(null);
-                setShowDetails(false);
-                return;
-              }
-              const label =
-                response.data.data[0].city +
-                " " +
-                response.data.data[0].countryCode;
-              getWeatherData(latitude, longitude, label);
-            });
-        } catch (error) {
-          console.error(error);
-          setWeather(null);
-          setShowDetails(false);
-        }
-      }, 1000);
-    });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(async () => {
+          try {
+            axios
+              .get(
+                "/api/geoApiCoordinates?lat=" + latitude + "&lon=" + longitude
+              )
+              .then((response) => {
+                if (response.data.success == false) {
+                  alert("Api rate limit exceeded. Please try again later.");
+                  setWeather(null);
+                  setShowDetails(false);
+                  setIsLoading(false); 
+                  return;
+                }
+                const label =
+                  response.data.data[0].city +
+                  " " +
+                  response.data.data[0].countryCode;
+                getWeatherData(latitude, longitude, label);
+              });
+          } catch (error) {
+            console.error(error);
+            setWeather(null);
+            setShowDetails(false);
+            setIsLoading(false); 
+          }
+        }, 1000);
+      },
+      (error) => {
+        console.error(error);
+        setIsLoading(false);
+      }
+    );
   };
 
   const handleBackButtonClick = () => {
